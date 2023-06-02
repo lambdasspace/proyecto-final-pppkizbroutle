@@ -4,7 +4,6 @@ module ConvexDiscs where
 import Primitives
 import Data.List
 import Data.Maybe
-import Debug.Trace
 
 -- | Función auxiliar utilizada por advance que dado un vector y una
 -- lista no vacía de posibles líneas, nos dice si la primera de ellas
@@ -67,8 +66,13 @@ merge' hS hP hQ p q l lp lq = merge' hS' hP' hQ' p' q' l' lp' lq'
                else
                  (y, x)
     (lp', lq') = (paraFromCircle l' (current p'), paraFromCircle l' (current q'))
-    hP' = remove hP (current p)
-    hQ' = remove hQ (current q)
+    (hP', hQ') = case (hP, hQ) of
+                   ([], ys) -> ([], remove ys)
+                   (xs, []) -> (remove xs, [])
+                   (xs, ys) -> if dom lp lq then
+                                 (remove xs, rotate ys)
+                               else
+                                 (rotate xs, remove ys)
 
 -- | Función advance utilizada por merge' que actualiza la línea L*,
 -- los puntos 'x', 'y' y el cierre convexo completo de ser necesario.
@@ -81,7 +85,7 @@ advance hS l x y = (hS', lineToDir l', x', y')
     line4 = tangentFromDiscToDisc (current y) (current x)
     hS' = if isFirstMin l [line1, line2, line3] then
             if isFirstMin l [line4, line2, line3] then
-              add (add hS (current y)) (current x)
+              (current x) : (add hS (current y)) 
             else
               add hS (current y)
           else
@@ -90,7 +94,7 @@ advance hS l x y = (hS', lineToDir l', x', y')
                      ((fromJust line2), next x, y)
                    else
                      case line3 of
-                       Nothing -> (dirToLine l, next x, next y)
+                       Nothing -> (dirToLine l, x, y)
                        Just l3 ->  (l3, x, next y)
 
 -- | Función auxiliar que recorta el cierrre convexo de ser necesario.
@@ -126,6 +130,7 @@ cut (x:y:xs) = x : y : auxCut x y xs
                             []
                           else
                             z : auxCut x y (w:ws)
+cut xs = error $ show xs
 
 -- | Función que dada una lista de discos XS y un disco D, regresa la
 -- lista D:XS y el primer elemento de XS era distinto a D, XS en otro
@@ -137,12 +142,15 @@ add (x:xs) d = if did x == did d then
                else
                  d:x:xs
 
-remove :: [Disc] -> Disc -> [Disc]
-remove [] _ = []
-remove (x:xs) d = if did x == did d then
-                    xs
-                  else
-                    x:xs
+-- | Función que de ser posible quita el primer elemento de la lista,
+-- de no serlo, nos regresa la lista vacía
+remove :: [Disc] -> [Disc]
+remove [] = []
+remove (_:xs) = xs
+
+-- | Función que rota la lista
+rotate [] = []
+rotate (x:xs) = xs ++ [x]
 
 -- | Función que nos da el cierre convexo de un conjunto de discos
 -- (añade el primer elemento al final si lo necesita)
@@ -165,11 +173,11 @@ convexHull xs = convexHull p `merge` convexHull q
 
 -- | Función que calcula el cierre convexo de un conjunto de discos, y
 -- sólo regresa los segmentos de recta que lo componen.
-drawHull :: [Disc] -> Maybe [Line]
+drawHull :: [Disc] -> [Line]
 drawHull xs = case convexDisc xs of
-                 [] -> Nothing
-                 [x] -> Nothing
-                 ys -> Just $ auxDraw ys
+                 [] -> []
+                 [x] -> []
+                 ys -> auxDraw ys
   where
     auxDraw [x] = []
     auxDraw (x:y:xs) = (fromJust $ tangentFromDiscToDisc x y) : auxDraw (y:xs)
