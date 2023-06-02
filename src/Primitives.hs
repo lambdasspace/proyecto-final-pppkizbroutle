@@ -167,19 +167,19 @@ paraFromCircle vect disc = (normalize vect) { p = point }
 dom :: VectDir -> VectDir -> Bool
 dom = ((Ccw /=) .) . (. p) . lineOrientation . dirToLine
 
--- | Tipo de dato para definir una estructura de datos cíclica.
--- Especificación: https://wiki.haskell.org/Tying_the_Knot
-data DList a = DLNode { prev :: DList a
-                      , current :: a
-                      , next :: DList a}
+data InfList a = Inf [a]
 
--- | Función que dada una lista, la hace cíclica.
-mkDList :: [a] -> DList a
-mkDList xs = let (first,last) = go last xs first
-             in  first
-  where
-    go :: DList a -> [a] -> DList a -> (DList a, DList a)
-    go prev []     next = (next,prev)
-    go prev (x:xs) next = let this = DLNode prev x rest
-                              (rest,last) = go this xs next
-                          in  (this,last)
+inf :: [a] -> [a]
+inf [] = []
+inf xs = xs ++ inf xs
+
+mkInf :: [a] -> InfList a
+mkInf = Inf . inf
+
+next :: InfList a -> InfList a
+next (Inf []) = Inf []
+next (Inf (_:xs)) = Inf xs
+
+current :: InfList a -> Maybe a
+current (Inf []) = Nothing
+current (Inf (x:_)) = Just x

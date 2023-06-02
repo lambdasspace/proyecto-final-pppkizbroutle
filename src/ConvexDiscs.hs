@@ -29,73 +29,87 @@ isFirstMin l xs = case head xs of
 -- lo más O(n); éstas funciones que toman tiempo lineal son "cut",
 -- "last", "length" e "init".  La llamada a función merge' toma tiempo
 -- O(n) también; de esta manera merge sigue siendo O(n).
-merge :: [Disc] -> [Disc] -> [Disc]
-merge hullP hullQ = merge' [] hP hQ p q l lp lq
-  where
-    cutP = if length hullP > 1 then cut hullP else hullP
-    cutQ = if length hullQ > 1 then cut hullQ else hullQ
-    hP = if (did (head cutP) == did (last cutP)) && (length cutP > 1) then init cutP else cutP
-    hQ = if (did (head cutQ) == did (last cutQ)) && (length cutQ > 1) then init cutQ else cutQ
-    p = mkDList hP
-    q = mkDList hQ
-    minY = if (snd (center (current p)) - radius (current p)) < (snd (center (current q)) - radius (current q)) then
-             current p
-           else
-             current q
-    l = VectDir { p = (fst $ center minY, snd (center minY) - radius minY), dx = -1, dy = 0}
-    lp = paraFromCircle l (current p)
-    lq = paraFromCircle l (current q)
+merge :: [Disc] -> [Disc] -> Maybe [Disc]
+merge hullP hullQ = do
+  let cutP = if length hullP > 1 then cut hullP else hullP
+  let cutQ = if length hullQ > 1 then cut hullQ else hullQ
+  let hP = if (did (head cutP) == did (last cutP)) && (length cutP > 1) then init cutP else cutP
+  let hQ = if (did (head cutQ) == did (last cutQ)) && (length cutQ > 1) then init cutQ else cutQ
+  let p = mkInf hP
+  let q = mkInf hQ
+  cp <- current p
+  cq <- current q
+  let minY = if (snd (center cp) - radius cp) < (snd (center cq) - radius cq) then
+               cp
+             else
+               cq
+  let l = VectDir { p = (fst $ center minY, snd (center minY) - radius minY), dx = -1, dy = 0}
+  let lp = paraFromCircle l cp
+  let lq = paraFromCircle l cq
+  merge' [] hP hQ p q l lp lq
 
 -- | Función auxiliar de merge que realiza las iteraciones que
 -- necesarias y regresa una lista con el cierre convexo.
-merge' :: [Disc] -> [Disc] -> [Disc] -> DList Disc -> DList Disc -> VectDir -> VectDir -> VectDir -> [Disc]
-merge' hS [] [] p q l lp lq = reverse hS'
-  where
-    (hS', _, _, _) = if dom lp lq then
-                       advance (add hS (current p)) l p q
+merge' :: [Disc] -> [Disc] -> [Disc] -> InfList Disc -> InfList Disc -> VectDir -> VectDir -> VectDir -> Maybe [Disc]
+merge' hS [] [] p q l lp lq = do
+  cp <- current p
+  cq <- current q
+  (hS', _, _, _) <- if dom lp lq then
+                      advance (add hS cp) l p q
+                    else
+                      advance (add hS cq) l q p
+  return $ reverse hS'
+merge' hS hP hQ p q l lp lq = do
+  cp <- current p
+  cq <- current q
+  (hS', l', x, y) <- if dom lp lq then
+                       advance (add hS cp) l p q
                      else
-                       advance (add hS (current q)) l q p
-merge' hS hP hQ p q l lp lq = merge' hS' hP' hQ' p' q' l' lp' lq'
-  where
-    (hS', l', x, y) = if dom lp lq then
-                       advance (add hS (current p)) l p q
-                     else
-                       advance (add hS (current q)) l q p
-    (p', q') = if dom lp lq then
-                 (x, y)
-               else
-                 (y, x)
-    (lp', lq') = (paraFromCircle l' (current p'), paraFromCircle l' (current q'))
-    (hP', hQ') = case (hP, hQ) of
-                   ([], ys) -> ([], remove ys)
-                   (xs, []) -> (remove xs, [])
-                   (xs, ys) -> if dom lp lq then
-                                 (remove xs, rotate ys)
-                               else
-                                 (rotate xs, remove ys)
+                       advance (add hS cq) l q p
+  let (p', q') = if dom lp lq then
+                   (x, y)
+                 else
+                   (y, x)
+  cp' <- current p'
+  cq' <- current q'
+  let (lp', lq') = (paraFromCircle l' cp', paraFromCircle l' cq')
+  let (hP', hQ') = case (hP, hQ) of
+                     ([], ys) -> ([], remove ys)
+                     (xs, []) -> (remove xs, [])
+                     (xs, ys) -> if dom lp lq then
+                                   (remove xs, ys)
+                                 else
+                                   (xs, remove ys)
+  merge' hS' hP' hQ' p' q' l' lp' lq'
 
 -- | Función advance utilizada por merge' que actualiza la línea L*,
 -- los puntos 'x', 'y' y el cierre convexo completo de ser necesario.
-advance :: [Disc] -> VectDir -> DList Disc -> DList Disc -> ([Disc], VectDir, DList Disc, DList Disc)
-advance hS l x y = (hS', lineToDir l', x', y')
-  where
-    line1 = tangentFromDiscToDisc (current x) (current y)
-    line2 = tangentFromDiscToDisc (current x) (current $ next x)
-    line3 = tangentFromDiscToDisc (current y) (current $ next y)
-    line4 = tangentFromDiscToDisc (current y) (current x)
-    hS' = if isFirstMin l [line1, line2, line3] then
-            if isFirstMin l [line4, line2, line3] then
-              (current x) : (add hS (current y)) 
+advance :: [Disc] -> VectDir -> InfList Disc -> InfList Disc -> Maybe ([Disc], VectDir, InfList Disc, InfList Disc)
+advance hS l x y = do -- (hS', lineToDir l', x', y')
+  cx <- current x
+  cy <- current y
+  cnx <- current $ next x
+  cny <- current $ next y
+  let line1 = tangentFromDiscToDisc cx cy
+  let line2 = tangentFromDiscToDisc cx cnx
+  let line3 = tangentFromDiscToDisc cy cny
+  let line4 = tangentFromDiscToDisc cy cx
+  let hS' = if isFirstMin l [line1, line2, line3] then
+              if isFirstMin l [line4, line2, line3] then
+                cx : (add hS cy) 
+              else
+                add hS cy
             else
-              add hS (current y)
-          else
-            hS
-    (l', x', y') = if isFirstMin l [line2, line3] then
-                     ((fromJust line2), next x, y)
-                   else
-                     case line3 of
-                       Nothing -> (dirToLine l, x, y)
-                       Just l3 ->  (l3, x, next y)
+              hS
+  (l', x',y') <-
+    if isFirstMin l [line2, line3] then do
+      l2 <- line2
+      return (lineToDir l2, next x, y)
+    else
+      case line3 of
+        Nothing -> return (l, x, y)
+        Just l3 -> return (lineToDir l3, x, next y)
+  return (hS', l', x', y')
 
 -- | Función auxiliar que recorta el cierrre convexo de ser necesario.
 
@@ -148,28 +162,28 @@ remove :: [Disc] -> [Disc]
 remove [] = []
 remove (_:xs) = xs
 
--- | Función que rota la lista
-rotate [] = []
-rotate (x:xs) = xs ++ [x]
-
 -- | Función que nos da el cierre convexo de un conjunto de discos
 -- (añade el primer elemento al final si lo necesita)
 convexDisc :: [Disc] -> [Disc]
 convexDisc xs = case convexHull xs of
-                  [x] -> [x]
-                  [x,y] -> [x,y]
-                  ys -> let result = cut ys in if (did (head result) == did (last result)) then result else result ++ [head result]
+                  Nothing -> []
+                  Just [] -> []
+                  Just [x] -> [x]
+                  Just [x,y] -> [x,y]
+                  Just ys -> let result = cut ys in if (did (head result) == did (last result)) then result else result ++ [head result]
 
 -- | Función que nos regresa el cierre convexo de un conjunto de
 -- discos; puede contener más discos de los necesarios.
-convexHull :: [Disc] -> [Disc]
-convexHull [] = []
-convexHull [x] = [x]
-convexHull xs = convexHull p `merge` convexHull q
-  where
-    n = length xs `div` 2
-    p = take n xs
-    q = drop n xs
+convexHull :: [Disc] -> Maybe [Disc]
+convexHull [] = Just []
+convexHull [x] = Just [x]
+convexHull xs = do
+  let n = length xs `div` 2
+  let p = take n xs
+  let q = drop n xs
+  hullP <- convexHull p
+  hullQ <- convexHull q
+  hullP `merge` hullQ
 
 -- | Función que calcula el cierre convexo de un conjunto de discos, y
 -- sólo regresa los segmentos de recta que lo componen.
