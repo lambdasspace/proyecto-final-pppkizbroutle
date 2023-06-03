@@ -3,3 +3,9 @@ elm-stuff
 index.html
 build
 lib
+_minted*
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
