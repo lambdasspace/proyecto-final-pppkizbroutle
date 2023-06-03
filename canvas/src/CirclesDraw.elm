@@ -248,7 +248,7 @@ subscriptions _ =
         , E.onMouseUp (D.succeed (MouseButton False)) ]
 
 -- Función que dado un modelo imprime en pantalla su estado
-view model = { title = "Hola Mundo"
+view model = { title = "Cierre Convexo"
              , body = render model ::
                       [Ht.div [H.style "position" "fixed"]
                            [ Ht.div [] [ Ht.button [He.onClick Save] [ text "Guardar" ] ]
