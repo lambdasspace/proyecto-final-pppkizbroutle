@@ -167,19 +167,27 @@ paraFromCircle vect disc = (normalize vect) { p = point }
 dom :: VectDir -> VectDir -> Bool
 dom = ((Ccw /=) .) . (. p) . lineOrientation . dirToLine
 
+-- | Tipo de dato para denotar a las listas "circulares"
 data InfList a = Inf [a]
 
+-- | Toma una lista y la repite indefinidamente, al igual que cycle,
+-- pero permite la lista vacía para evitar errores.
 inf :: [a] -> [a]
 inf [] = []
 inf xs = xs ++ inf xs
 
+-- | Toma una lista, le aplica inf y la pone dentro del contexto de
+-- InfList
 mkInf :: [a] -> InfList a
 mkInf = Inf . inf
 
+-- | Gira una lista circular 
 next :: InfList a -> InfList a
 next (Inf []) = Inf []
 next (Inf (_:xs)) = Inf xs
 
+-- | Intenta regresar el elemento en la cabeza de la lista, regresa
+-- Nothing si la lista es vacía
 current :: InfList a -> Maybe a
 current (Inf []) = Nothing
 current (Inf (x:_)) = Just x
