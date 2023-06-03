@@ -1,0 +1,92 @@
+#+title: Programación Declarativa: Proyecto Final
+#+author: Erik Rangel Limón
+
+* Proyecto Final
+
+** Dependencias
+
+   - Elm: [[https://guide.elm-lang.org/install/elm.html]]
+
+   - GHC
+
+     
+** Compilación
+
+   Estando en la carpeta =src=:
+
+   #+begin_src bash
+mkdir build lib
+ghc Main.hs -o lib/Main -odir build/ -hidir build/
+   #+end_src
+
+   Estando en la carpeta =canvas=:
+
+   #+begin_src bash
+elm make src/CirclesDraw.elm
+   #+end_src
+
+   Esto último generará un archivo =index.html= dentro de la carpeta
+   =canvas=
+
+** Ejecución
+
+   1. Abrir en un navegador el archivo =index.html=
+
+   2. Dibujar círculos
+
+   3. Seleccionar el boton "Guardar"
+
+   4. Guardar el archivo en =src/lib=
+
+   5. Ejecutar en la carpeta =src/lib= el programa =Main= de la siguiente
+      forma:
+
+      #+begin_src bash
+./Main input.txt output.txt
+      #+end_src
+
+      Donde =input.txt= es el nombre del archivo que guardaron y
+      =output.txt= el archivo en donde se guardará el resultado
+
+   6. Seleccionar el botón "Cargar" y seleccionar el archivo
+      =output.txt=
+
+** Respuestas al correo
+
+   - ¿Utilizas =newtype= o tipos de dato algebráicos?
+
+     Definí los tipos de dato =Orientation= (dirección con respecto a 3
+     puntos), =VectDir= (linea dirigida), =Disc= (circulos con centro y
+     radio) e =InfList=
+
+   - ¿Se llega a una solución más elegante implementando alguna clase
+     para ciertas primitivas?
+
+     Posiblemente sí, pero no pude verlo. Las posibilidades en las que
+     estaba pensando eran definir la clase =Ord= para los puntos o para
+     las líneas para así prescindir del tipo de dato =Orientation= o de
+     la función =dom= respectivamente; en el caso de los puntos la
+     función =compare= requieriría dos de ellos, y obtener la
+     orientación requiere de tres; por otra parte para las líneas =dom=
+     sólo se utiliza para líneas paralelas y no se utiliza en ninguna
+     otra parte, por lo que utilizar esta función como =compare= para
+     dos líneas que no son paralelas no nos estaría dando información
+     útil sobre ellas.
+
+     Otra opción en la que pensé fue definir =Functor= para =InfList=,
+     pero en ningún momento del algoritmo se requería de modificar los
+     valores de ésta lista.
+
+   - ¿Conviene crear una clase para indicar que una primitiva
+     geométrica es serializable y así escribirla al archivo de salida?
+
+     Sí, serializando la lista de líneas a Json en /Haskell/ y
+     deserializandolas en /Elm/, y serializar la lista de discos en /Elm/
+     y deserializadolos en /Haskell/.
+
+     No sé por qué no lo hice, me hubiera ahorrado un poco de trabajo,
+     de cualquier manera tanto las líneas como los discos son tipos de
+     dato que se pueden representar fácilmente en una línea separando
+     sus atributos por comas. Esta "serialización" la hice en el
+     archivo =CircleReader.hs=.
+
