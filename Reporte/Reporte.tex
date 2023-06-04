@@ -52,7 +52,7 @@
 
 El cierre convexo para una nube de puntos $S$ se define como el polígono convexo más pequeño que contiene a todos los puntos de $S$. Para calcularlo se proponen múltiples algoritmos que utilizan algunas primitivas geométricas, como la dirección a la que se encuentra un punto con respecto a otros dos, dado un punto verificar que éste se encuentre dentro de un triángulo, entre otros. La utilización de estas primitivas, así como el uso de ciertas propiedades geométricas permiten mejorar la complejidad en tiempo para los algoritmos de esta tarea, llegando a una cota inferior de $O(n\log n)$.
 
-Así, la idea del cierre convexo se extiende para la solución de otros problemas, como el cierre convexo para un conjunto de puntos en más dimensiones, la envolvente convexa de un polígono monótono, y por ejemplo, el que trabajé para éste proyecto, el cierre convexo para un conjunto de discos.
+Así, la idea del cierre convexo se extiende para la solución de otros problemas, como el cierre convexo para un conjunto de puntos en más dimensiones, la envolvente convexa de un polígono monótono, y por ejemplo, el que trabajé para este proyecto, el cierre convexo para un conjunto de discos.
 
 \subsection*{Cierre Convexo para un conjunto de Círculos}
 
@@ -93,7 +93,7 @@ Esto dado que \texttt{Main} es un programa que se ejecuta con parámetros.
 
 \subsubsection*{Primitives.hs}
 
-\noindent En éste módulo como lo indica su nombre, se incluye la especificación de tipos de datos geométricos y funciones que serán las primitivas geométricas que necesitaremos para el algoritmo.
+\noindent En este módulo como lo indica su nombre, se incluye la especificación de tipos de datos geométricos y funciones que serán las primitivas geométricas que necesitaremos para el algoritmo.
 
 Los tipos de dato que utilicé fueron los siguientes:
 
@@ -143,9 +143,9 @@ data InfList a = Inf [a]
   
 \end{itemize}
 
-Las funciones definidas en \texttt{Primitives.hs} se apoyan de éstos tipos de dato para los cálculos necesarios y su funcionalidad está explicada en el archivo.
+Las funciones definidas en \texttt{Primitives.hs} se apoyan de estos tipos de dato para los cálculos necesarios y su funcionalidad está explicada en el archivo.
 
-De éstas funciones quisiera hacer énfasis en algunas, dos de ellas son precisamente las que se especifican en el artículo y las demás de cómo funcionan las listas ``circulares''
+De estas funciones quisiera hacer énfasis en algunas, dos de ellas son precisamente las que se especifican en el artículo y las demás de cómo funcionan las listas ``circulares''
 
 \begin{itemize}
 \item \texttt{dom}
@@ -174,7 +174,7 @@ tangentFromDiscToDisc discA discB = do
                _ -> return l1
   \end{minted}
 
-  Ésta función lo que hace es intentar obtener las lineas tangentes exteriores de dos círculos $A$ y $B$ (si es que existen) y regresa aquella que está a la izquierda con respecto a los centros de $A$ a $B$. Esta función es equivalente a $L(a,b)$ que es la que se utiliza en el artículo.
+  Esta función lo que hace es intentar obtener las lineas tangentes exteriores de dos círculos $A$ y $B$ (si es que existen) y regresa aquella que está a la izquierda con respecto a los centros de $A$ a $B$. Esta función es equivalente a $L(a,b)$ que es la que se utiliza en el artículo.
 
 \item \texttt{inf} y \texttt{mkInf}
 
@@ -207,7 +207,7 @@ current (Inf (x:_)) = Just x
 
 \subsubsection*{ConvexDisc.hs}
 
-En éste módulo se implementa la funcionalidad principal para calcular el cierre convexo de un conjunto de círculos.
+En este módulo se implementa la funcionalidad principal para calcular el cierre convexo de un conjunto de círculos.
 
 Destacaré las funciones esenciales para el cierre convexo:
 
@@ -260,7 +260,7 @@ merge hullP hullQ = do
   merge' [] hP hQ p q l lp lq
   \end{minted}
 
-  Esta función inicializa lo necesario del procedimiento \textit{merge}, como la linea inicial y los círculos $p$ y $q$ que se necesitan así como sus rectas tangentes $lp$ y $lq$ respectivamente. Hace un procedimiento de recorte para pasos anteriores pues el algoritmo puede regresar más discos de los necesarios, pero no afectan la complejidad pues éstos toman tiempo lineal y además \textit{merge} no se ejecuta recursivamente, por lo que éste recorte sólo se ejecuta dos veces en cada llamada a \textit{merge}.
+  Esta función inicializa lo necesario del procedimiento \textit{merge}, como la linea inicial y los círculos $p$ y $q$ que se necesitan así como sus rectas tangentes $lp$ y $lq$ respectivamente. Hace un procedimiento de recorte para pasos anteriores pues el algoritmo puede regresar más discos de los necesarios, pero no afectan la complejidad pues éstos toman tiempo lineal y además \textit{merge} no se ejecuta recursivamente, por lo que el recorte sólo se ejecuta dos veces en cada llamada a \textit{merge}.
 
 \item \textit{merge'}
 
@@ -306,7 +306,7 @@ merge' hS hP hQ p q l lp lq = do
   merge' hS' hP' hQ' p' q' l' lp' lq'
   \end{minted}
 
-  Ésta función es la parte recursiva del proceso \textit{merge}, en ésta se revisa la posición de cada círculo, qué circulos se deben agregar, hacia donde deben girar las listas circulares y como marcar los elementos visitados.
+  Esta función es la parte recursiva del proceso \textit{merge}, en ésta se revisa la posición de cada círculo, qué circulos se deben agregar, hacia donde deben girar las listas circulares y como marcar los elementos visitados.
 
 \item \texttt{advance}
 
@@ -349,13 +349,13 @@ advance hS l x y = do -- (hS', lineToDir l', x', y')
 
 \subsubsection*{CircleReader.hs}
 
-\noindent En éste módulo se especifican funciones para pasar de una cadena de texto a una lista de círculos, y para pasar de un conjunto de lineas a una cadena de texto.
+\noindent En este módulo se especifican funciones para pasar de una cadena de texto a una lista de círculos, y para pasar de un conjunto de lineas a una cadena de texto.
 
 También tiene funciones para leer y escribir archivos a partir de las funciones explicadas anteriormente de \texttt{CircleReader.hs} y de \texttt{ConvexCircles.hs}
 
 \subsubsection*{Main.hs}
 
-\noindent En éste módulo se encuentra el programa principal; éste importa la paquetería \texttt{System.Environment} para obtener los argumentos con los que fue llamado el programa; el primer argumento debe ser un archivo en el que se encuentren definidos un conjunto de círculos descritos en cada línea del archivo con un identificador, el centro y su radio, cada uno de estos parámetros separados por una coma; el segundo archivo debe ser la ruta que se desea guardar el archivo del resultado.
+\noindent En este módulo se encuentra el programa principal; importa la paquetería \texttt{System.Environment} para obtener los argumentos con los que fue llamado el programa; el primer argumento debe ser un archivo en el que se encuentren definidos un conjunto de círculos descritos en cada línea del archivo con un identificador, el centro y su radio, cada uno de estos parámetros separados por una coma; el segundo archivo debe ser la ruta que se desea guardar el archivo del resultado.
 
 Después de compilarse, debe ejecutarse como sigue:
 
@@ -383,9 +383,9 @@ Dentro de la carpeta \texttt{canvas/src} se encuentran dos archivos:
 \item \texttt{Playground.elm}
 \end{itemize}
 
-Cabe decir que el archivo \texttt{Playground.elm} no lo hice yo, y la fuente está en \href{https://github.com/evancz/elm-playground/tree/master}{github}.
+El archivo \texttt{Playground.elm} no lo hice yo, y la fuente está en \href{https://github.com/evancz/elm-playground/tree/master}{github}; sólo lo modifiqué para poder utilizar algunas funciones que no estaban en el módulo original.
 
-Éste no lo usé en su totalidad, pero lo modifiqué para poder importar algunas funciones para utilizar figuras y convertirlas a \texttt{svg}.
+No lo usé en su totalidad, pero lo modifiqué para poder importar algunas funciones para utilizar figuras y convertirlas a \texttt{svg}.
 
 \subsubsection*{CiclesDraw.elm}
 
@@ -520,6 +520,24 @@ view model = { title = "Cierre Convexo"
                            , Ht.div [] [ Ht.text (String.fromFloat model.mouse.x) ]
                            , Ht.div [] [ Ht.text (String.fromFloat model.mouse.y) ]
                            , Ht.div [] [ Ht.text (if model.mouse.down then "Clicked" else "Unclicked")]]]}
+  \end{minted}
+
+  \begin{minted}[fontsize=\footnotesize]{haskell}
+render model =
+    let
+        w = String.fromFloat model.screen.width
+        h = String.fromFloat model.screen.height
+        x = String.fromFloat (model.screen.left)
+        y = String.fromFloat model.screen.bottom
+    in
+        svg
+        [ viewBox (x ++ " " ++ y ++ " " ++ w ++ " " ++ h)
+        , H.style "position" "fixed"
+        , H.style "top" "0"
+        , H.style "left" "0"
+        , width "100%"
+        , height "100%" ]
+        ((List.map P.renderShape (drawModel model)) ++ (drawHull model.circleState.hull))
   \end{minted}
   
 \end{itemize}

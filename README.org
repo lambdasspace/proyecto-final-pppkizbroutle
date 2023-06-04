@@ -3,6 +3,14 @@
 
 * Proyecto Final
 
+** Aviso
+
+   El archivo =canvas/src/Playground.elm= lo modifiqué para poder
+   utilizar algunas funciones que no estaban expuestas en el módulo
+   original. El original se puede encontrar en:
+
+   [[https://github.com/evancz/elm-playground]]
+
 ** Dependencias
 
    - Elm: [[https://guide.elm-lang.org/install/elm.html]]
