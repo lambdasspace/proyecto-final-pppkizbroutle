@@ -11,10 +11,10 @@
 \usepackage{geometry}
 
 \geometry{
-  top=20mm,
-  bottom=20mm,
-  left=20mm,
-  right=20mm
+  top=15mm,
+  bottom=15mm,
+  left=15mm,
+  right=15mm
 }
 
 \makeatletter
@@ -46,7 +46,7 @@
 
 \maketitle
 
-\section*{Cierre Convexo}
+\section*{Análisis del problema: Cierre Convexo}
 
 \noindent Uno de los primeros problemas que se abordan en \textit{Geometría Computacional} es el cálculo del cierre convexo para una nube de puntos.
 
@@ -62,11 +62,24 @@ Ahora la solución es distinta, pues esta región convexa, sus bordes pueden ser
 
 En el artículo \textit{A convex hull algorithm for discs, and applications} se propone una solución que utiliza una estrategia \textit{divide y vencerás}, pues toma el conjunto $S$, lo particiona en dos conjuntos $P$ y $Q$ de aproximadamente el mismo tamaño, calcula recursivamente el cierre convexo de $P$ y de $Q$ y une ambos cierres en el cierre convexo $P\cup Q$ con un procedimiento \textit{merge}.
 
-El procedimiento \textit{merge} tampoco es difícil de comprender; consiste en elegir una recta dirigida $L$, en cada paso tomar elementos $p$ y $q$ de $P$ y de $Q$ respectivamente tales que su recta tangente al disco y paralela a $L$ más a la izquierda con respecto a $L$, $P$ (o $Q$, según sea el caso) está contenido en su respectiva mitad derecha, y decidir cuál de ambas rectas su mitad de plano contiene a la otra, en cuyo casó será el círculo que añadiremos al cierre convexo del resultado, continuamos el procedimiento girando la línea $L$ en sentido antihorario con respecto al ángulo más pequeño entre los siquientes elementos de $p$ o de $q$ hasta haber visitado cada uno de los círculos.
+El procedimiento \textit{merge} tampoco es difícil de comprender; consiste en elegir una recta dirigida $L$, en cada paso tomar elementos $p$ y $q$ de $P$ y de $Q$ respectivamente tales que su recta tangente al disco y paralela a $L$ más a la izquierda con respecto a $L$, $P$ (o $Q$, según sea el caso) está contenido en su respectiva mitad derecha, y decidir cuál de ambas rectas su mitad de plano contiene a la otra, en cuyo caso será el círculo que añadiremos al cierre convexo del resultado, continuamos el procedimiento girando la línea $L$ en sentido antihorario con respecto al ángulo más pequeño entre los siquientes elementos de $p$ o de $q$ hasta haber visitado cada uno de los círculos.
+
+\subsection*{Antecedentes y bibliografía}
+
+\begin{itemize}
+\item \href{https://www.sciencedirect.com/science/article/pii/092577219290015K}{\textit{A convex hull algorithm for discs, and applications}}
+
+  En este artículo de analiza a fondo el problema y se propone el algoritmo para calcular el cierre convexo.
+
+\item De Berg, M., Cheong, O., Van Kreveld, M., \& Overmars, M. H. (1997). Computational Geometry: Algorithms and Applications.\ \href{http://altmetrics.ceek.jp/article/ci.nii.ac.jp/ncid/BA45765321}{http://altmetrics.ceek.jp/article/ci.nii.ac.jp/ncid/BA45765321}
+
+  En este libro se revisan las principales definiciones que se dan en el curso de \textit{Geometría Computacional}.
+  
+\end{itemize}
 
 \newpage
 
-\section*{Implementación}
+\section*{Metodología}
 
 \noindent Mi proyecto se divide en dos partes, la primera parte resuelve el cierre convexo de un conjunto de círculos en \textit{Haskell}, ésta incluye la definición de varias primitivas geométricas y la implementación del algoritmo como tal. La segunda es la implementación de una interfaz sencilla para dibujar círculos  en \textit{Elm}, lo que incluye guardar los círculos en un archivo de texto y leer un archivo con la solución.
 
@@ -385,7 +398,7 @@ Dentro de la carpeta \texttt{canvas/src} se encuentran dos archivos:
 
 El archivo \texttt{Playground.elm} no lo hice yo, y la fuente está en \href{https://github.com/evancz/elm-playground/tree/master}{github}; sólo lo modifiqué para poder utilizar algunas funciones que no estaban en el módulo original.
 
-No lo usé en su totalidad, pero lo modifiqué para poder importar algunas funciones para utilizar figuras y convertirlas a \texttt{svg}.
+No lo usé en su totalidad, mas que para poder importar algunas funciones para utilizar figuras y convertirlas a \texttt{svg}.
 
 \subsubsection*{CiclesDraw.elm}
 
@@ -543,5 +556,25 @@ render model =
 \end{itemize}
 
 La idea para usar este proyecto es abrir en un navegador el archivo \texttt{index.html}, dibujar los círculos y pulsar el botón de ``Guardar'' para descargar el archivo con la información de los círculos. Recomiendo guardarlo en la misma carpeta en donde se encuentre el programa ``Main''. Posteriormente ejecutar el programa ``Main'' con el nombre del archivo de los círculos y el nombre del archivo donde se guardará el resultado. Finalmente pulsar el botón de ``Cargar'' y seleccionar el archivo en donde se guardó el resultado.
+
+\section*{Interpetación de los resultados}
+
+\noindent A pesar de que en el artículo principal se describe el algoritmo de forma imperativa, no significó una limitante para no poder implementarlo en un lenguaje declarativo como lo es \textit{Haskell}; y tampoco significó una limitante en términos de complejidad en tiempo.
+
+Como comenté en la propuesta, éste fue un tema de exposición que abordé en la materia de \textit{Geometría Computacional} y surgieron algunas dudas sobre su complejidad dado que mi solución añade un procedimiento \texttt{cut} que toma tiempo lineal el cual se realiza en la inicialización de la función \texttt{merge} con el fin de recortar elementos que no se necesitan al final del cierre convexo. El artículo no explica cómo se debe manejar este caso excepcional y sería fácilmente de manejar aprovechando el estado, lo cual no tenemos en \textit{Haskell}, sin embargo seguían existiendo varias alternativas que no afectan la complejidad, y la que yo tomé fue la de usar éste procedimiento que se ejecuta únicamente dos veces al inicio de merge, que ya toma tiempo lineal.
+
+No puedo decir que fue una labor trivial ya que éste algoritmo asumía cierto conocimiento de \textit{Geometría Analítica}, con el que se definen las primitivas, pero ya teniéndolas la traducción no fue difícil.
+
+Para éste proyecto aprendí \textit{Elm}, el cual no me costó entender ya sabiendo \textit{Haskell} ya que su sintaxis es muy similar. Realizar la interfaz en éste lenguaje fue la parte que me tomó menos tiempo y la recomiendo enormemente para hacer interfaces en aplicaciones web.
+
+En el proyecto final podrán apreciar el funcionamiento de mi idea desarrollada en un entorno completamente declarativo, y claro, es posible mejorarlo.
+
+\newpage
+
+\section*{Propuestas de Trabajo Futuro}
+
+Por una parte, como trabajo a futuro sería interesante ver implementadas más interfaces web hechas en \textit{Elm} con el que se demuestre la importancia de la programación declarativa y su utilidad en ámbitos de la computación donde comúnmente se deja de lado.
+
+Y por otra parte, también sería interesante ver herramientas que faciliten el aprendizaje de algoritmos geométricos por medio de la visualización de los resultados, y así se facilite su implementación y su estudio, la cual ya tiene la fama de ser complicada.
 
 \end{document}
